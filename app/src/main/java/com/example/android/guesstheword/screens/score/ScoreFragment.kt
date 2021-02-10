@@ -29,26 +29,26 @@ import com.example.android.guesstheword.databinding.ScoreFragmentBinding
 
 /**
  * Fragment where the final score is shown, after the game is over
+ *
+ * This fragment gets the score passed in from the argument bundle and displays it.
+ * There’s also a button for playing again, that takes you back to the GameFragment.
  */
 class ScoreFragment : Fragment() {
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
+    lateinit var binding: ScoreFragmentBinding
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         // Inflate view and obtain an instance of the binding class.
-        val binding: ScoreFragmentBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.score_fragment,
-                container,
-                false
-        )
+        binding = ScoreFragmentBinding.inflate(inflater, container, false)
 
-        // Get args using by navArgs property delegate
-        val scoreFragmentArgs by navArgs<ScoreFragmentArgs>()
-        binding.scoreText.text = scoreFragmentArgs.score.toString()
+        //Get args about final score from Game fragment, option 1
+        val scoreArgs = ScoreFragmentArgs.fromBundle(requireArguments())
+        binding.scoreText.text = scoreArgs.score.toString()
+
+        // Get args using by navArgs property delegate, option 2
+/*        val scoreFragmentArgs by navArgs<ScoreFragmentArgs>()
+        binding.scoreText.text = scoreFragmentArgs.score.toString()*/
+
         binding.playAgainButton.setOnClickListener { onPlayAgain() }
 
         return binding.root

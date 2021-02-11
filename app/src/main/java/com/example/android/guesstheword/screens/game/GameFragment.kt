@@ -28,6 +28,28 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
 
 /**
  * Fragment where the game is played
+ *
+ *
+ * This fragment contains all the logic for the GuessIt game itself. It contains:
+ *
+ * - word - A variable for the current word to guess.
+ *
+ * - score - A variable for the current score.
+ *
+ * - wordList - A variable for a mutable list of all the words you need to guess. This list is
+ * created and immediately shuffled using resetList() so that you get a new order of words every time.
+ *
+ * - resetList() - Method that creates and shuffles the list of words.
+ *
+ * - onSkip()/onCorrect() - Methods for when you press the Skip/Got It buttons. They modify the
+ * score and then go to the next word in your worldList.
+ *
+ * - nextWord() - A method for moving to the next word to guess. If there are still words in your
+ * mutable list of words, remove the current word, and then set currentWord to whatever is next in
+ * the list. This will finish the game if there are no more words to guess.
+ *
+ * - gameFinished() - A method that is called to finish the game. This passes your current score
+ * to the ScoreFragment using SafeArgs.
  */
 class GameFragment : Fragment() {
 
@@ -43,15 +65,10 @@ class GameFragment : Fragment() {
     private lateinit var binding: GameFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
         // Inflate view and obtain an instance of the binding class
-        binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.game_fragment,
-                container,
-                false
-        )
+        binding = GameFragmentBinding.inflate(inflater, container, false)
 
         resetList()
         nextWord()
@@ -66,11 +83,13 @@ class GameFragment : Fragment() {
 
     /**
      * Resets the list of words and randomizes the order
+     *
+     * This list needs to be mutable, so you can shuffle it
      */
     private fun resetList() {
         wordList = mutableListOf(
                 "queen",
-                "hospital",
+                "dog",
                 "basketball",
                 "cat",
                 "change",
@@ -96,6 +115,11 @@ class GameFragment : Fragment() {
 
     /**
      * Called when the game is finished
+     *
+     * Another thing to mention is that when navigating from the game destination to score
+     * destination, a pop to behavior is set. This pop to behavior modifies the back stack to pop
+     * off the game destination. This ensures that if you press the back button from the score
+     * screen, you're never going to be taken back to a finished game.
      */
     private fun gameFinished() {
         val action = GameFragmentDirections.actionGameToScore(score)

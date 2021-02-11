@@ -21,6 +21,17 @@ import androidx.appcompat.app.AppCompatActivity
 
 /**
  * Creates an Activity that hosts all of the fragments in the app
+ *
+ * This class does very little. It’s just a container for the NavHostFragment.
+ * The fragments that go in the NavHostFragment do most of the heavy lifting.
+ *
+ * The main_navigation is the navigation graph for this app. The navigation flow goes from the
+ * TitleFragment to the GameFragment to the ScoreFragment. From the ScoreFragment, you can play the
+ * game again by going back to the GameFragment.
+ *
+ * Note that the action from the GameFragment to the ScoreFragment has a Pop To attribute that
+ * removes the game from the backstack. This makes it so that you can never press the back button
+ * from the ScoreFragment to go back to a finished game. Instead you’ll go to the title screen.
  */
 class MainActivity : AppCompatActivity() {
 

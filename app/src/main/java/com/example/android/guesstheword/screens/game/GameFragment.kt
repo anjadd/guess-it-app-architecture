@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.databinding.GameFragmentBinding
@@ -98,17 +99,30 @@ class GameFragment : Fragment() {
         */
         binding.correctButton.setOnClickListener {
             viewModel.onCorrect()
-            updateScoreText()
-            updateWordText()
         }
         binding.skipButton.setOnClickListener {
             viewModel.onSkip()
-            updateScoreText()
-            updateWordText()
         }
 
-        updateScoreText()
-        updateWordText()
+        /* You need to set up the observation relationship in the UI Controller, by getting a
+        reference in the UI Controller’s onCreate()/onCreateView(), to the LiveData for the specific
+        variable. You need a reference to you LiveData, which you can get from your ViewModel.
+        Then call the observe method, which wants 2 inputs.
+            o The first input is a LifecycleOwner and this is the UI Controller associated with the
+                LiveData, so you should pass in this as a reference to the fragment/activity.
+            o The second input is an anonymous Observer object (which is an object with a single
+                method in it onChanged(), and by using a lambda expression, you can simplify this
+                in Observer with curly braces {}). This anonymous Observer object is actually the
+                code that gets called each time the LiveData changes. Into this Observer, you should
+                pass in the updated LiveData. Then update the score view with the new value.
+        */
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+            binding.scoreText.text = newScore.toString()
+        })
+
+        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+            binding.wordText.text = newWord
+        })
 
         return binding.root
     }
@@ -127,17 +141,22 @@ class GameFragment : Fragment() {
      * needs to be done in the UI Controller.
      */
     private fun gameFinished() {
-        val action = GameFragmentDirections.actionGameToScore(viewModel.score)
+        /*The elvis operator ?: says that if the viewModel.score.value is an integer value, pass
+        through that, and if not pass through 0. */
+        val action = GameFragmentDirections.actionGameToScore(viewModel.score.value ?: 0)
         findNavController(this).navigate(action)
     }
 
     /** Methods for updating the UI **/
 
+/*  This method is replaced with the observation relationship for the word in onCreateView()
     private fun updateWordText() {
         binding.wordText.text = viewModel.word
-    }
+    }*/
 
+/*
+    This method is replaced with the observation relationship for the score in onCreateView()
     private fun updateScoreText() {
         binding.scoreText.text = viewModel.score.toString()
-    }
+    }*/
 }

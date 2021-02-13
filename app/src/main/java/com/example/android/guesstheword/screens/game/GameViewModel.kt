@@ -1,5 +1,6 @@
 package com.example.android.guesstheword.screens.game
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 /**The ViewModel holds your app’s UI data, which needs to be displayed in the fragment/activity
@@ -19,11 +20,25 @@ import androidx.lifecycle.ViewModel
  * statements into them.*/
 class GameViewModel : ViewModel() {
 
+    /**
+     * The fields in the ViewModel whose change will cause the UI to update itself, should be made
+     * LiveDatas.
+     * You will convert your ordinary fields into LiveData, by turning them into
+     * MutableLiveData, which is a LiveData whose value can be changed. The MutableLiveData is a
+     * generic class, so you will also have to specify what type of data it holds.
+     * */
+
     // The current word
-    var word = ""
+    //var word = ""
 
     // The current score
-    var score = 0
+    //var score = 0
+
+    // The current word wrapped / converted in LiveData
+    var word = MutableLiveData<String>()
+
+    // The current score wrapped / converted in LiveData
+    var score = MutableLiveData<Int>()
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -34,6 +49,9 @@ class GameViewModel : ViewModel() {
         the fragment gets created, which is wrong. */
         resetList()
         nextWord()
+
+        /*To set a value to a MutableLiveData, use the .value method*/
+        score.value = 0
     }
 
     override fun onCleared() {
@@ -85,7 +103,8 @@ class GameViewModel : ViewModel() {
             //TODO fix the call to gameFinished() later
             //gameFinished()
         } else {
-            word = wordList.removeAt(0)
+            //word = wordList.removeAt(0)
+            word.value = wordList.removeAt(0)
         }
     }
 
@@ -93,12 +112,22 @@ class GameViewModel : ViewModel() {
      * The methods onCorrect() and onSkip() do some data processing, so they belong in the ViewModel**/
 
     fun onSkip() {
-        score--
+        /* When the variable score was a simple Int, you could do the subtraction like this: score--.
+        But when the score is a MutableLiveData, its type is nullable, so you need to check each
+        time you call methods on it, that its value is not null.
+        So call your methods on LiveDatas with null safety*/
+        //score--
+        score.value = (score.value)?.minus(1)
         nextWord()
     }
 
     fun onCorrect() {
-        score++
+        /* When the variable score was a simple Int, you could do the addition like this: score++.
+        But when the score is a MutableLiveData, its type is nullable, so you need to check each
+        time you call methods on it, that its value is not null.
+        So call your methods on LiveDatas with null safety.*/
+        //score++
+        score.value = (score.value)?.plus(1)
         nextWord()
     }
 }

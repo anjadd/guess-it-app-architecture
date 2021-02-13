@@ -99,11 +99,9 @@ class GameFragment : Fragment() {
         */
         binding.correctButton.setOnClickListener {
             viewModel.onCorrect()
-            updateWordText()
         }
         binding.skipButton.setOnClickListener {
             viewModel.onSkip()
-            updateWordText()
         }
 
         /* You need to set up the observation relationship in the UI Controller, by getting a
@@ -122,7 +120,9 @@ class GameFragment : Fragment() {
             binding.scoreText.text = newScore.toString()
         })
 
-        updateWordText()
+        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+            binding.wordText.text = newWord
+        })
 
         return binding.root
     }
@@ -149,9 +149,10 @@ class GameFragment : Fragment() {
 
     /** Methods for updating the UI **/
 
+/*  This method is replaced with the observation relationship for the word in onCreateView()
     private fun updateWordText() {
         binding.wordText.text = viewModel.word
-    }
+    }*/
 
 /*
     This method is replaced with the observation relationship for the score in onCreateView()

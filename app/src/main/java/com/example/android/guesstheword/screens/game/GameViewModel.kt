@@ -27,11 +27,15 @@ class GameViewModel : ViewModel() {
      * MutableLiveData, which is a LiveData whose value can be changed. The MutableLiveData is a
      * generic class, so you will also have to specify what type of data it holds.
      * */
+
     // The current word
-    var word = ""
+    //var word = ""
 
     // The current score
     //var score = 0
+
+    // The current word wrapped / converted in LiveData
+    var word = MutableLiveData<String>()
 
     // The current score wrapped / converted in LiveData
     var score = MutableLiveData<Int>()
@@ -99,7 +103,8 @@ class GameViewModel : ViewModel() {
             //TODO fix the call to gameFinished() later
             //gameFinished()
         } else {
-            word = wordList.removeAt(0)
+            //word = wordList.removeAt(0)
+            word.value = wordList.removeAt(0)
         }
     }
 

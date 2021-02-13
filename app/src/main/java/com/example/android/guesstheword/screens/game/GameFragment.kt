@@ -20,10 +20,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
-import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
 
 /**
@@ -53,14 +52,8 @@ import com.example.android.guesstheword.databinding.GameFragmentBinding
  */
 class GameFragment : Fragment() {
 
-    // The current word
-    private var word = ""
-
-    // The current score
-    private var score = 0
-
-    // The list of words - the front of the list is the next word to guess
-    private lateinit var wordList: MutableList<String>
+    // Reference to the ViewModel in your fragment class
+    private lateinit var viewModel: GameViewModel
 
     private lateinit var binding: GameFragmentBinding
 
@@ -70,47 +63,54 @@ class GameFragment : Fragment() {
         // Inflate view and obtain an instance of the binding class
         binding = GameFragmentBinding.inflate(inflater, container, false)
 
-        resetList()
-        nextWord()
+        /** Get a reference to the ViewModel
+         * Never construct ViewModels yourself, because if you did, you’d end up constructing a
+         * ViewModel every time the fragment was recreated, which wouldn’t solve the problems with
+         * configuration changes. Instead, the Lifecycle Library creates the ViewModel for you.
+         *
+         * You request creation of the ViewModel from a class called ViewModelProvider, which
+         * provides you with the correct ViewModel. In this method you pass your fragment with the
+         * reference ‘this’, and you pass in the specific ViewModel class that you want.
+         *
+         * The first time that this line of code is executed, it will create a new instance of the
+         * GameViewModel for you, and that instance will be associated with the class that is passed
+         * before it (the fragment). When ViewModelProvider is called again, it will return a
+         * reference to a pre-existed GameViewModel associated with this UI Controller.
+         * This is what reestablishes the connection to the same ViewModel.
+         *
+         * The Game Fragment would be responsible for displaying the game fragment: drawing the game
+         * elements to the screen, and knowing when the user presses the buttons, nothing more.*/
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
+        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+
+/*      You should do the resetList() and nextWord() initialization when the ViewModel gets created,
+        and not every time that the fragment gets created.
+        That's why these methods should be moved to the init() block in the ViewModel.
+
+        resetList()
+        nextWord()*/
+
+        /*Setting up OnClickListeners and updating the screen are responsibility only of the UI
+        Controllers.
+        The methods onCorrect() and onSkip() do some data processing, so they belong in the ViewModel
+        The methods updateScoreText() and updateWordText() are used to update the screen, so they
+        belong in the UI Controller. They are called each time the word gets changed.
+        */
+        binding.correctButton.setOnClickListener {
+            viewModel.onCorrect()
+            updateScoreText()
+            updateWordText()
+        }
+        binding.skipButton.setOnClickListener {
+            viewModel.onSkip()
+            updateScoreText()
+            updateWordText()
+        }
+
         updateScoreText()
         updateWordText()
+
         return binding.root
-
-    }
-
-    /**
-     * Resets the list of words and randomizes the order
-     *
-     * This list needs to be mutable, so you can shuffle it
-     */
-    private fun resetList() {
-        wordList = mutableListOf(
-                "queen",
-                "dog",
-                "basketball",
-                "cat",
-                "change",
-                "snail",
-                "soup",
-                "calendar",
-                "sad",
-                "desk",
-                "guitar",
-                "home",
-                "railway",
-                "zebra",
-                "jelly",
-                "car",
-                "crow",
-                "trade",
-                "bag",
-                "roll",
-                "bubble"
-        )
-        wordList.shuffle()
     }
 
     /**
@@ -120,46 +120,24 @@ class GameFragment : Fragment() {
      * destination, a pop to behavior is set. This pop to behavior modifies the back stack to pop
      * off the game destination. This ensures that if you press the back button from the score
      * screen, you're never going to be taken back to a finished game.
+     *
+     * Regarding the MVVM design, the gameFinished() method causes a navigation, and navigation needs
+     * access to a nav controller. And nav controller is found by passing in a view or fragment,
+     * which are things you don't want in the ViewModel. So basically, any navigation that you do,
+     * needs to be done in the UI Controller.
      */
     private fun gameFinished() {
-        val action = GameFragmentDirections.actionGameToScore(score)
+        val action = GameFragmentDirections.actionGameToScore(viewModel.score)
         findNavController(this).navigate(action)
-    }
-
-    /**
-     * Moves to the next word in the list
-     */
-    private fun nextWord() {
-        //Select and remove a word from the list
-        if (wordList.isEmpty()) {
-            gameFinished()
-        } else {
-            word = wordList.removeAt(0)
-        }
-        updateWordText()
-        updateScoreText()
-    }
-
-    /** Methods for buttons presses **/
-
-    private fun onSkip() {
-        score--
-        nextWord()
-    }
-
-    private fun onCorrect() {
-        score++
-        nextWord()
     }
 
     /** Methods for updating the UI **/
 
     private fun updateWordText() {
-        binding.wordText.text = word
-
+        binding.wordText.text = viewModel.word
     }
 
     private fun updateScoreText() {
-        binding.scoreText.text = score.toString()
+        binding.scoreText.text = viewModel.score.toString()
     }
 }

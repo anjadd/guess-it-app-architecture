@@ -1,6 +1,5 @@
 package com.example.android.guesstheword.screens.game
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 
 /**The ViewModel holds your app’s UI data, which needs to be displayed in the fragment/activity
@@ -29,9 +28,7 @@ class GameViewModel : ViewModel() {
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
 
-
     init {
-        Log.i("GameViewModel", "GameViewModel created!")
         /*You should do the resetList() and nextWord() initialization when the ViewModel gets
         created. If this initialization was still in the fragment, it will get called every time
         the fragment gets created, which is wrong. */
@@ -40,8 +37,8 @@ class GameViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        //GameViewModel gets destroyed
         super.onCleared()
-        Log.i("GameViewModel", "GameViewModel destroyed!")
     }
 
     /**

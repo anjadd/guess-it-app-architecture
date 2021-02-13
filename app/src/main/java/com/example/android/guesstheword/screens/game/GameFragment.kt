@@ -17,15 +17,12 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
-import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
 
 /**
@@ -58,7 +55,6 @@ class GameFragment : Fragment() {
     // Reference to the ViewModel in your fragment class
     private lateinit var viewModel: GameViewModel
 
-
     private lateinit var binding: GameFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -85,11 +81,12 @@ class GameFragment : Fragment() {
          * The Game Fragment would be responsible for displaying the game fragment: drawing the game
          * elements to the screen, and knowing when the user presses the buttons, nothing more.*/
 
-        Log.i("GameFragment", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
-/*      You should do the next initialization when the ViewModel gets created, and not every time
-        that the fragment gets created.
+/*      You should do the resetList() and nextWord() initialization when the ViewModel gets created,
+        and not every time that the fragment gets created.
+        That's why these methods should be moved to the init() block in the ViewModel.
+
         resetList()
         nextWord()*/
 
@@ -109,6 +106,9 @@ class GameFragment : Fragment() {
             updateScoreText()
             updateWordText()
         }
+
+        updateScoreText()
+        updateWordText()
 
         return binding.root
     }
@@ -135,7 +135,6 @@ class GameFragment : Fragment() {
 
     private fun updateWordText() {
         binding.wordText.text = viewModel.word
-
     }
 
     private fun updateScoreText() {

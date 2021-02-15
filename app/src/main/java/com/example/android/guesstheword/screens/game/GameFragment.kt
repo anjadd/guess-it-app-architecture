@@ -124,6 +124,25 @@ class GameFragment : Fragment() {
             binding.wordText.text = newWord
         })
 
+        /* When a certain event happens (e.g. a Game finished Event, when the user has guessed all
+        the words in the list), the LiveData should tell the UI Controller that the game has
+        finished, and the UI Controller would know that it should navigate to another screen.
+        * */
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { hasFinished ->
+            if (hasFinished) {
+                gameFinished()
+
+                /*You need to tell the ViewModel that the navigation has happened, otherwise each
+                time you rotate the phone, the code in the observer (e.g. the gameFinished() which
+                navigates to Game End screen) gets called again.
+                This means that the event gets called multiple times, but you want that game
+                finished event to only happen once.*/
+                //Tell the ViewModel that gameFinished() has completed and that you've handled the
+                // game finished event by calling onGameFinishComplete
+                viewModel.onGameFinishComplete()
+            }
+        })
+
         return binding.root
     }
 

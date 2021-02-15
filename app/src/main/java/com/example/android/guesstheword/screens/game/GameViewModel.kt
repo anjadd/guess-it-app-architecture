@@ -1,5 +1,6 @@
 package com.example.android.guesstheword.screens.game
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
@@ -26,6 +27,29 @@ class GameViewModel : ViewModel() {
      * You will convert your ordinary fields into LiveData, by turning them into
      * MutableLiveData, which is a LiveData whose value can be changed. The MutableLiveData is a
      * generic class, so you will also have to specify what type of data it holds.
+     *
+     * It is an unwritten rule, that you should try to restrict edit access to your LiveData. This
+     * means that you should encapsulate the LiveData, by exposing a public set of methods, that
+     * could modify the private internal fields.
+     * Without encapsulation, you could easily access the LiveData from your UI Controller (which
+     * is against the architectural rules) and change its value.
+     *
+     * Only the ViewModel should be able to update the LiveData values.
+     * So inside the ViewModel, you want the LiveData to be a MutableLiveData (read and write are
+     * enabled), but outside the ViewModel, you want the MutableLiveData to be exposed only as a
+     * LiveData (only read is enabled).
+     * To achieve this, you need to make two versions of each LiveData object in your ViewModel:
+     *      	One object that is mutable and will be used internally:
+     *          	The internal version should be a MutableLiveData, have an underscore in front
+     *              of its name, and be private (because it’s private to the ViewModel). The
+     *              underscore is our convention for marking the variable as the internal version
+     *              of a variable.
+     *          	Next, you need to update the code in your ViewModel to use the internal versions
+     *              of the LiveData objects.
+     *      	One object that is not mutable and will be used externally:
+     *          	Override the getter for this object using a backing property and return the
+     *              internal object. Defining the external object type to be LiveData, makes sure
+     *              that only read option is enabled.
      * */
 
     // The current word
@@ -35,10 +59,20 @@ class GameViewModel : ViewModel() {
     //var score = 0
 
     // The current word wrapped / converted in LiveData
-    var word = MutableLiveData<String>()
+    private val _word = MutableLiveData<String>()
+
+    val word: LiveData<String>
+        get() {
+            return _word
+        }
 
     // The current score wrapped / converted in LiveData
-    var score = MutableLiveData<Int>()
+    private val _score = MutableLiveData<Int>()
+
+    val score: LiveData<Int>
+        get() {
+            return _score
+        }
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
@@ -51,7 +85,7 @@ class GameViewModel : ViewModel() {
         nextWord()
 
         /*To set a value to a MutableLiveData, use the .value method*/
-        score.value = 0
+        _score.value = 0
     }
 
     override fun onCleared() {
@@ -104,7 +138,7 @@ class GameViewModel : ViewModel() {
             //gameFinished()
         } else {
             //word = wordList.removeAt(0)
-            word.value = wordList.removeAt(0)
+            _word.value = wordList.removeAt(0)
         }
     }
 
@@ -117,7 +151,7 @@ class GameViewModel : ViewModel() {
         time you call methods on it, that its value is not null.
         So call your methods on LiveDatas with null safety*/
         //score--
-        score.value = (score.value)?.minus(1)
+        _score.value = (score.value)?.minus(1)
         nextWord()
     }
 
@@ -127,7 +161,7 @@ class GameViewModel : ViewModel() {
         time you call methods on it, that its value is not null.
         So call your methods on LiveDatas with null safety.*/
         //score++
-        score.value = (score.value)?.plus(1)
+        _score.value = (score.value)?.plus(1)
         nextWord()
     }
 }

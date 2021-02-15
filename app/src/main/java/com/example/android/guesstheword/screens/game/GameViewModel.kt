@@ -50,6 +50,28 @@ class GameViewModel : ViewModel() {
      *          	Override the getter for this object using a backing property and return the
      *              internal object. Defining the external object type to be LiveData, makes sure
      *              that only read option is enabled.
+     *
+     *
+     * You can use LiveData to model some Event, like the game finished event. An event happens
+     * once, and it is done, until it’s triggered again.
+     * When some event happens, the LiveData can tell the UI Controller that a certain event has
+     * happened (e.g. the user has guessed all the words in the list in Guess it app, so list is
+     * now empty), so the UI Controller would know that it should navigate to another screen.
+     * To create an event with LiveData you should:
+     *      - make a LiveData object to represent your specific event;
+     *      - set the LiveData for the event game finished to false at the start;
+     *      - set the LiveData for the event game finished to true, when the word list is empty
+     *          which means the game should finish;
+     *      - add a new observer in the UI Controller for that specific LiveData event
+     *      - you need to tell the ViewModel that the gameFinished() has completed and navigation
+     *      has happened, otherwise each time you rotate the phone, the code in the observer
+     *      (e.g. the gameFinished() which navigates to Game End screen) gets called again.
+     *      This means that the event gets called multiple times, but you want that game finished
+     *      event to only happen once. So create a function in which you will take that event and
+     *      set its value back to false. And then tell the ViewModel that gameFinished() has
+     *      completed (in the observer code for the event). This will actually represent that the
+     *      event has been handled, and will ensure that the game finish event will only happen
+     *      once, even after rotation.
      * */
 
     // The current word
@@ -77,7 +99,18 @@ class GameViewModel : ViewModel() {
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
 
+    //Make a LiveData object to represent your game finished event
+    private val _eventGameFinish = MutableLiveData<Boolean>()
+
+    val eventGameFinish: LiveData<Boolean>
+        get() {
+            return _eventGameFinish
+        }
+
     init {
+        //Set the LiveData for the event game finished to false at the start
+        _eventGameFinish.value = false
+
         /*You should do the resetList() and nextWord() initialization when the ViewModel gets
         created. If this initialization was still in the fragment, it will get called every time
         the fragment gets created, which is wrong. */
@@ -134,7 +167,8 @@ class GameViewModel : ViewModel() {
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            //TODO fix the call to gameFinished() later
+            //The game should finish when the word list is empty
+            _eventGameFinish.value = true
             //gameFinished()
         } else {
             //word = wordList.removeAt(0)
@@ -163,5 +197,17 @@ class GameViewModel : ViewModel() {
         //score++
         _score.value = (score.value)?.plus(1)
         nextWord()
+    }
+
+    /*You need to tell the ViewModel that the gameFinished() has completed and navigation
+    has happened, otherwise each time you rotate the phone, the code in the observer
+    (e.g. the gameFinished() which navigates to Game End screen) gets called again.
+    This means that the event gets called multiple times, but you want that game finished
+    event to only happen once. So create a function in which you will take that event and
+    set its value back to false. This will actually represent that the event has been
+    handled, and will ensure that the game finish event will only happen once, even after
+    rotation.*/
+    fun onGameFinishComplete() {
+        _eventGameFinish.value = false
     }
 }

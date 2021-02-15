@@ -80,6 +80,26 @@ import androidx.appcompat.app.AppCompatActivity
  * The LiveData classes are crucial for communicating information from the ViewModel to the UI
  * Controller, that it should update and redraw the screen.
  *
+ * LiveData is an observable data holder class that is also lifecycle-aware.
+ *
+ * LiveData holds data, meaning that it wraps around sub data (from the ViewModel). With LiveData,
+ * you could change the data in the ViewModel and then LiveData will tell the UI Controller to
+ * update itself.
+ *
+ * LiveData is also lifecycle-aware, meaning that LiveData knows about the lifecycle state of its
+ * UI Controller observers (fragment/activity). LiveData uses this information to interact
+ * intelligently with your fragments and activities:
+ * o	This means that LiveData will only update UI Controllers that are actually on-screen.
+ * o	If your UI Controller goes off-screen, it won’t get any updates even if the LiveData changes.
+ *          When the UI Controller comes back on-screen, LiveData will always trigger it with the
+ *          most recent data.
+ * o	If the LiveData already exists with some data, and a new UI Controller starts to observe it,
+ *          it’ll get the current data immediately.
+ * o	Finally, if the UI Controller gets destroyed, the LiveData will automatically clean up its
+ *          own connection to the observer. That’s why you create an observer connection in the
+ *          fragment’s onCreateView, but you never have to clean up that connection in onDestroyView.
+ *          LiveData can do its own cleanup for you because it’s lifecycle-aware.
+ *
  */
 class MainActivity : AppCompatActivity() {
 

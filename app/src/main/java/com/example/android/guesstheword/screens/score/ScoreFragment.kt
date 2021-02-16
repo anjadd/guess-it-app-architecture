@@ -20,11 +20,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.ScoreFragmentBinding
 
 /**
@@ -35,26 +34,67 @@ import com.example.android.guesstheword.databinding.ScoreFragmentBinding
  */
 class ScoreFragment : Fragment() {
 
-    lateinit var binding: ScoreFragmentBinding
+    // Reference the ViewModel in your fragment class
+    private lateinit var viewModel: ScoreViewModel
+
+    // Reference the ViewModelFactory in your fragment class
+    private lateinit var viewModelFactory: ScoreViewModelFactory
+
+    private lateinit var binding: ScoreFragmentBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         // Inflate view and obtain an instance of the binding class.
         binding = ScoreFragmentBinding.inflate(inflater, container, false)
 
-        //Get args about final score from Game fragment, option 1
-        val scoreArgs = ScoreFragmentArgs.fromBundle(requireArguments())
-        binding.scoreText.text = scoreArgs.score.toString()
+        // Create and construct a ScoreViewModelFactory
+        viewModelFactory = ScoreViewModelFactory(getScoreArgumentFromGameFragment())
 
-        // Get args using by navArgs property delegate, option 2
-/*        val scoreFragmentArgs by navArgs<ScoreFragmentArgs>()
-        binding.scoreText.text = scoreFragmentArgs.score.toString()*/
+        /** Get a reference to the ViewModel
+         * Never construct ViewModels yourself. Instead, request creation of the ViewModel from a
+         * class called ViewModelProvider, which provides you with the correct ViewModel. In this
+         * method you will pass in your fragment with the reference ‘this’, and you pass in the
+         * specific ViewModel  class that you want.
+         *
+         * By passing the ViewModel factory as a second argument, you're telling the
+         * ViewModelProvider to use this specific factory to create ScoreViewModel*/
+        viewModel = ViewModelProvider(this, viewModelFactory)
+                .get(ScoreViewModel::class.java)
 
-        binding.playAgainButton.setOnClickListener { onPlayAgain() }
+
+        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+            binding.scoreText.text = newScore.toString()
+        })
+
+        //Tell the ViewModel that the play again button has been clicked
+        binding.playAgainButton.setOnClickListener {
+            viewModel.onPlayAgain()
+        }
+
+        /* When a certain event happens (e.g. a Play again Event, when the user pressed the Play
+        again button to start a new guessing game), the LiveData should tell the UI Controller that
+        the play again has completed, and the UI Controller would know that it should navigate to
+        another screen. This navigates back to title when Play again button is pressed*/
+        viewModel.eventPlayAgain.observe(viewLifecycleOwner, Observer { isPlayAgainClicked ->
+            if (isPlayAgainClicked) {
+                findNavController().navigate(ScoreFragmentDirections.actionRestart())
+                viewModel.onPlayAgainComplete()
+            }
+        })
 
         return binding.root
     }
 
-    private fun onPlayAgain() {
-        findNavController().navigate(ScoreFragmentDirections.actionRestart())
+    private fun getScoreArgumentFromGameFragment(): Int {
+
+        //Get args about final score from Game fragment, option 1
+        val scoreArgs = ScoreFragmentArgs.fromBundle(requireArguments())
+        return scoreArgs.score
+
+        // Get args using by navArgs property delegate, option 2
+/*        val scoreFragmentArgs by navArgs<ScoreFragmentArgs>()
+        binding.scoreText.text = scoreFragmentArgs.score.toString()*/
     }
+
+
 }

@@ -17,6 +17,7 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -122,6 +123,14 @@ class GameFragment : Fragment() {
 
         viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
             binding.wordText.text = newWord
+        })
+
+        /* Create an observer for the timer value (currentTime) and update the timer field each
+        time the timer ticks/timer value is changed.
+        Use the DateUtils.formatElapsedTime() method which takes in long as input. You can pass
+        in a number of milliseconds, and it will format it as time.*/
+        viewModel.currentTime.observe(viewLifecycleOwner, Observer { newTimerValue ->
+            binding.timerText.text = DateUtils.formatElapsedTime(newTimerValue)
         })
 
         /* When a certain event happens (e.g. a Game finished Event, when the user has guessed all

@@ -1,5 +1,6 @@
 package com.example.android.guesstheword.screens.game
 
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,21 @@ import androidx.lifecycle.ViewModel
  * To track the lifetime of this ViewModel, add init block and override onCleared(), and add log
  * statements into them.*/
 class GameViewModel : ViewModel() {
+
+    /* Place the countdown timer constants in a companion object. These represent different
+    important times, such as game length. */
+    companion object {
+        // This is when the game is over
+        const val DONE = 0L
+
+        // This is the number of milliseconds in a second
+        const val ONE_SECOND = 1000L
+
+        // This is the total time of the game, 60 seconds
+        const val COUNTDOWN_TIME = 10000L
+    }
+
+    private val timer: CountDownTimer
 
     /**
      * The fields in the ViewModel whose change will cause the UI to update itself, should be made
@@ -107,6 +123,15 @@ class GameViewModel : ViewModel() {
             return _eventGameFinish
         }
 
+    //Encapsulated LiveData for the current time left on the timer
+    private var _currentTime = MutableLiveData<Long>()
+
+    val currentTime: LiveData<Long>
+        get() {
+            return _currentTime
+        }
+
+
     init {
         //Set the LiveData for the event game finished to false at the start
         _eventGameFinish.value = false
@@ -119,11 +144,30 @@ class GameViewModel : ViewModel() {
 
         /*To set a value to a MutableLiveData, use the .value method*/
         _score.value = 0
+
+        /*Creates a timer which triggers the end of the game when it finishes*/
+        timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
+            override fun onTick(millisecondsUntilFinished: Long) {
+                // Implement what should happen each tick of the timer
+                _currentTime.value = (millisecondsUntilFinished / ONE_SECOND)
+            }
+
+            override fun onFinish() {
+                // Implement what should happen when the timer finishes
+                _currentTime.value = DONE
+                _eventGameFinish.value = true
+            }
+        }
+        //Start the timer
+        timer.start()
     }
 
+    /* Cancel the timer in onCleared().
+    To avoid memory leaks, you should always cancel a CountDownTimer if you no longer need it.*/
     override fun onCleared() {
         //GameViewModel gets destroyed
         super.onCleared()
+        timer.cancel()
     }
 
     /**
@@ -163,8 +207,20 @@ class GameViewModel : ViewModel() {
      *
      * Regarding the MVVM design, the gameFinished() needs to stay in the fragment because navigation
      * is done from it. But also the ViewModel can't know about the fragment.
+     *
+     * When you add a countdown timer, the game should end when you run out of time. Make a change in the game end, so each time
+     * the wordlist is empty, reset the list instead of ending the game.
      */
+
     private fun nextWord() {
+        //Select and remove a word from the list
+        if (wordList.isEmpty()) {
+            resetList()
+        }
+        _word.value = wordList.removeAt(0)
+    }
+
+/*    private fun nextWordOldCode() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
             //The game should finish when the word list is empty
@@ -174,7 +230,7 @@ class GameViewModel : ViewModel() {
             //word = wordList.removeAt(0)
             _word.value = wordList.removeAt(0)
         }
-    }
+    }*/
 
     /** Methods for buttons presses
      * The methods onCorrect() and onSkip() do some data processing, so they belong in the ViewModel**/

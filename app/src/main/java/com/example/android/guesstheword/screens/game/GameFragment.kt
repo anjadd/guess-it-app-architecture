@@ -21,10 +21,11 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
+import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
 
 /**
@@ -63,7 +64,7 @@ class GameFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
 
         // Inflate view and obtain an instance of the binding class
-        binding = GameFragmentBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.game_fragment, container, false)
 
         /** Get a reference to the ViewModel
          * Never construct ViewModels yourself, because if you did, you’d end up constructing a
@@ -117,11 +118,11 @@ class GameFragment : Fragment() {
                 code that gets called each time the LiveData changes. Into this Observer, you should
                 pass in the updated LiveData. Then update the score view with the new value.
         */
-        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+        viewModel.score.observe(viewLifecycleOwner, { newScore ->
             binding.scoreText.text = newScore.toString()
         })
 
-        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+        viewModel.word.observe(viewLifecycleOwner, { newWord ->
             binding.wordText.text = newWord
         })
 
@@ -129,7 +130,7 @@ class GameFragment : Fragment() {
         time the timer ticks/timer value is changed.
         Use the DateUtils.formatElapsedTime() method which takes in long as input. You can pass
         in a number of milliseconds, and it will format it as time.*/
-        viewModel.currentTime.observe(viewLifecycleOwner, Observer { newTimerValue ->
+        viewModel.currentTime.observe(viewLifecycleOwner, { newTimerValue ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTimerValue)
         })
 
@@ -137,7 +138,7 @@ class GameFragment : Fragment() {
         the words in the list), the LiveData should tell the UI Controller that the game has
         finished, and the UI Controller would know that it should navigate to another screen.
         * */
-        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { hasFinished ->
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, { hasFinished ->
             if (hasFinished) {
                 gameFinished()
 

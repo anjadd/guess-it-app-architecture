@@ -86,6 +86,19 @@ class GameFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
+        /** By adding a LiveData Data Binding, whenever the data (LiveData) in the ViewModel changes,
+         * the views would stay in sync and update themselves. So you can get rid of that observer
+         * code in the UI Controller, and when the data in the ViewModel changes, the view just
+         * updates itself.
+         *
+         * To add a LiveData Data Binding:
+         * 1) Set the ViewModel for data binding.
+         *      This allows the bound layout access to all of the data in the ViewModel
+         * */
+
+        //Set the ViewModel for data binding:
+
+
 /*      You should do the resetList() and nextWord() initialization when the ViewModel gets created,
         and not every time that the fragment gets created.
         That's why these methods should be moved to the init() block in the ViewModel.

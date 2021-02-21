@@ -106,18 +106,52 @@ class GameFragment : Fragment() {
         resetList()
         nextWord()*/
 
+        /**
+         * By adding a LiveData Data Binding, whenever the data (LiveData) in the ViewModel changes,
+         * the views would just update themselves. So you can get rid of that observer code in the
+         * UI Controller.
+         *
+         * You can pass a class object (with some properties) into data binding, and data binding
+         * will update the appropriate views.
+         * Similarly, your ViewModel holds a lot of your UI data, so it’s actually really good to
+         * pass the ViewModel object into the data binding. After doing this, you can automate some
+         * of the communication between the ViewModel and the views, so that you even don’t need to
+         * involve the UI Controller.
+         *
+         * To add ViewModel to data binding do the following:
+         * 1)	Add a ViewModel data binding variable to the layout
+         * 2)	Pass the ViewModel to the binding variable in the UI Controller
+         * 3)   Use the ViewModel variable to add onClick attributes for the buttons
+         *      You can replace the OnClickListeners in the UI Controller, by setting up
+         *      OnClickListeners in the XML layout.
+         *      Add an onClick attribute with a code that will directly call the ViewModel’s
+         *      corresponding method. Using data binding, you can define a data binding expression
+         *      which is a Listener binding. This means that you define the OnClickListener in the
+         *      xml. This sets up the OnClickListener and it registers the lambda as the Listener.
+         *      You also have your view model variable available via data binding.
+
+
+         */
+
+        //Pass the ViewModel to the binding variable in the UI Controller
+        binding.gameViewModel = viewModel
+
         /*Setting up OnClickListeners and updating the screen are responsibility only of the UI
         Controllers.
         The methods onCorrect() and onSkip() do some data processing, so they belong in the ViewModel
         The methods updateScoreText() and updateWordText() are used to update the screen, so they
         belong in the UI Controller. They are called each time the word gets changed.
-        */
+
+        When you add ViewModel to data binding, you can replace the OnClickListeners in the UI
+        Controller, by setting up OnClickListeners in the XML layout. */
+        /*
         binding.correctButton.setOnClickListener {
             viewModel.onCorrect()
         }
         binding.skipButton.setOnClickListener {
             viewModel.onSkip()
         }
+        */
 
         /* You need to set up the observation relationship in the UI Controller, by getting a
         reference in the UI Controller’s onCreate()/onCreateView(), to the LiveData for the specific

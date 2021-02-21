@@ -62,15 +62,21 @@ class ScoreFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)
                 .get(ScoreViewModel::class.java)
 
+        // Adding ViewModel to data binding
+        // Pass the ViewModel to the binding variable in the UI Controller
+        binding.scoreViewModel = viewModel
 
         viewModel.score.observe(viewLifecycleOwner, { newScore ->
             binding.scoreText.text = newScore.toString()
         })
 
+        /* When you add ViewModel to data binding, you can replace the OnClickListeners in the UI
+        Controller, by setting up OnClickListeners in the XML layout.
+
         //Tell the ViewModel that the play again button has been clicked
         binding.playAgainButton.setOnClickListener {
             viewModel.onPlayAgain()
-        }
+        }*/
 
         /* When a certain event happens (e.g. a Play again Event, when the user pressed the Play
         again button to start a new guessing game), the LiveData should tell the UI Controller that

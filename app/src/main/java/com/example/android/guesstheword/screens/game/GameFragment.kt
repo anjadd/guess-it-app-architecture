@@ -17,7 +17,6 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -186,9 +185,13 @@ class GameFragment : Fragment() {
         time the timer ticks/timer value is changed.
         Use the DateUtils.formatElapsedTime() method which takes in long as input. You can pass
         in a number of milliseconds, and it will format it as time.*/
+
+        /*Formatting current time left on the timer from Long to a String (data manipulations to
+        LiveData) should be done in the ViewModel by using a method called Transformations.map().
+        This observer method should be removed.
         viewModel.currentTime.observe(viewLifecycleOwner, { newTimerValue ->
-            binding.timerText.text = DateUtils.formatElapsedTime(newTimerValue)
-        })
+           binding.timerText.text = DateUtils.formatElapsedTime(newTimerValue)
+        })*/
 
         /* When a certain event happens (e.g. a Game finished Event, when the user has guessed all
         the words in the list), the LiveData should tell the UI Controller that the game has

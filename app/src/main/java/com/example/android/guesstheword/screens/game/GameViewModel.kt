@@ -1,8 +1,10 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.CountDownTimer
+import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
 /**The ViewModel holds your app’s UI data, which needs to be displayed in the fragment/activity
@@ -131,6 +133,26 @@ class GameViewModel : ViewModel() {
             return _currentTime
         }
 
+    /*Formatting current time left on the timer from Long to a String (data manipulations to
+    LiveData) should be done in the ViewModel by using a method called Transformations.map().
+    This method takes one LiveData as an input, does the conversion on it, and outputs another
+    LiveData as a result. In other words, when the data in LiveData A changes, the map function
+    takes that output of LiveData A, does some conversion on it, and then outputs the result to
+    another LiveData B.
+
+    In this example, when the time changes, LiveData A can output a long representing how much time
+    has passed. Then you can do a conversion on it, to format it as a String showing the elapsed
+    (passed) time. Then that string will be output from LiveData B, which would update the UI
+    Controller.
+
+    - The current time will be LiveData A (current time left on the timer);
+    - Create a variable currentTimeString which will be LiveData B. It will output Strings. Its
+        value should be the result of the function Transformations.map() which will take in 2
+        arguments: the current time as an input LiveData and the function which will convert that
+        LiveData. The function for converting can be a lambda function, which will take in the
+        output of current time, which is a Long. Use the same DateUtils.formatElapsedTime() to
+        convert the current time into a formatted time. */
+    val currentTimeString = Transformations.map(currentTime) { time -> DateUtils.formatElapsedTime(time) }
 
     init {
         //Set the LiveData for the event game finished to false at the start
@@ -221,16 +243,16 @@ class GameViewModel : ViewModel() {
     }
 
 /*    private fun nextWordOldCode() {
-        //Select and remove a word from the list
-        if (wordList.isEmpty()) {
-            //The game should finish when the word list is empty
-            _eventGameFinish.value = true
-            //gameFinished()
-        } else {
-            //word = wordList.removeAt(0)
-            _word.value = wordList.removeAt(0)
-        }
-    }*/
+    //Select and remove a word from the list
+    if (wordList.isEmpty()) {
+        //The game should finish when the word list is empty
+        _eventGameFinish.value = true
+        //gameFinished()
+    } else {
+        //word = wordList.removeAt(0)
+        _word.value = wordList.removeAt(0)
+    }
+}*/
 
     /** Methods for buttons presses
      * The methods onCorrect() and onSkip() do some data processing, so they belong in the ViewModel**/

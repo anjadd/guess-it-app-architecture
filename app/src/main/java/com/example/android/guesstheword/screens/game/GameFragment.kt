@@ -133,8 +133,13 @@ class GameFragment : Fragment() {
 
          */
 
-        //Pass the ViewModel to the binding variable in the UI Controller
+        // Pass the ViewModel to the binding variable in the UI Controller
         binding.gameViewModel = viewModel
+
+        /* Set the data binding’s lifecycle owner to the UI Controller you’re implementing it into.
+        *  This makes the data binding aware of lifecycle, and it allows you to use LiveData to
+        * automatically update the data binding layouts.*/
+        binding.lifecycleOwner = this
 
         /*Setting up OnClickListeners and updating the screen are responsibility only of the UI
         Controllers.
@@ -165,13 +170,17 @@ class GameFragment : Fragment() {
                 code that gets called each time the LiveData changes. Into this Observer, you should
                 pass in the updated LiveData. Then update the score view with the new value.
         */
-        viewModel.score.observe(viewLifecycleOwner, { newScore ->
+        /* Because in your layout, you've set the value of the view to a data binding expression,
+        by accessing its matching LiveData from the ViewModel, that will display the current values
+        of the LiveDatas. Now you can remove this observer code, which updates the values in the
+        views when the LiveDatas change*/
+        /*  viewModel.score.observe(viewLifecycleOwner, { newScore ->
             binding.scoreText.text = newScore.toString()
-        })
+        })*/
 
-        viewModel.word.observe(viewLifecycleOwner, { newWord ->
+        /*  viewModel.word.observe(viewLifecycleOwner, { newWord ->
             binding.wordText.text = newWord
-        })
+        })*/
 
         /* Create an observer for the timer value (currentTime) and update the timer field each
         time the timer ticks/timer value is changed.

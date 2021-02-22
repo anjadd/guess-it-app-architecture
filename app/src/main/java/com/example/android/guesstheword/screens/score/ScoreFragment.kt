@@ -66,9 +66,17 @@ class ScoreFragment : Fragment() {
         // Pass the ViewModel to the binding variable in the UI Controller
         binding.scoreViewModel = viewModel
 
+        /* Set the data binding’s lifecycle owner to its UI Controller
+        *  This makes the data binding aware of lifecycle, and it allows you to use LiveData to
+        *  automatically update the data binding layouts*/
+        binding.lifecycleOwner = this
+
+/*      By setting the data binding’s lifecycle owner, the data binding is aware of lifecycle and
+        you can remove the observer code:
+
         viewModel.score.observe(viewLifecycleOwner, { newScore ->
-            binding.scoreText.text = newScore.toString()
-        })
+        binding.scoreText.text = newScore.toString()
+        })*/
 
         /* When you add ViewModel to data binding, you can replace the OnClickListeners in the UI
         Controller, by setting up OnClickListeners in the XML layout.
